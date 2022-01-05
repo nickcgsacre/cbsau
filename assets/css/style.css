@@ -1,0 +1,85 @@
+
+input.largerCheckbox {
+	width: 30px;
+	height: 30px;
+}
+input.mediumCheckbox {
+	width: 20px;
+	height: 20px;
+}
+
+#exibeImg img {
+	width: 100%;
+	height: auto;
+}
+
+.atestado {
+	font-family: Arial !important;
+}
+
+.atestado .cm31 {
+	width: 31cm !important;
+	overflow: hidden
+}
+
+.atestado .cm31.center {
+	margin: 0 auto;
+}
+
+.atestado .cm9 {
+	width: 9cm !important;
+	overflow: hidden
+}
+
+.atestado .cm14 {
+	width: 9cm !important;
+	overflow: hidden
+}
+
+.atestado .cm4 {
+	width: 9cm !important;
+	overflow: hidden
+}
+
+.atestado .left {
+	float: left!important
+}
+
+.atestado .right {
+	float: right!important
+}
+
+.atestado h3 {
+	font-family: Arial;
+    font-weight: bold;
+    color: #000;
+    text-align: center;
+	margin-bottom: 0px;
+}
+
+.atestado h5 {
+	font-family: Arial;
+    font-weight: bold;
+    color: #000;
+    text-align: center;
+}
+
+.atestado h6 {
+	font-family: Arial;
+    font-weight: bold;
+    color: #000;
+    text-align: center;
+}
+
+.atestado .border3 {
+	border-radius: 10px;
+    border: 2px solid #000;
+    padding: 20px;
+    margin: 0px;
+}
+
+.atestado .border3 span {
+	position: absolute;
+    top: 0px;
+    left: 8px;
+}
