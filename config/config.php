@@ -1,7 +1,7 @@
 <?php
 //
 $server = "localhost";
-$usuario = "root";
-$senha = "";
-$banco = "cbsaude";
+$usuario = "cbsaudeb_sistema";
+$senha = "JM9wB@]#]^n{";
+$banco = "cbsaudeb_sistema";
 
