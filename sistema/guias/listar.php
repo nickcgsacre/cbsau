@@ -178,7 +178,9 @@ foreach($L_FORNECEDORES as $ITEM) {
 									<small class="text-tachado text-danger">R$ <?=number_format($GUIA->valor,2,",",".")?></small>
 									<br/>
 									<strong class="text-success">R$ <?php
+
 									$valorcomdesconto = $GUIA->valor - ($GUIA->valor * $plano[0]->cobrado / 100);	
+									
 									echo number_format($valorcomdesconto,2,",",".");?></strong>
 								<?php } ?>
 								
