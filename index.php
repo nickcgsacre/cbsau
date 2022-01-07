@@ -18,6 +18,7 @@ elseif($_SESSION['user'] and contarQueryes("sessoes", "chave='".$_SESSION['user'
 	if($ROTA[0] == 'api') {
 		if(file_exists("sistema/api/".$ROTA[1].".php")) {
 			include_once("sistema/api/".$ROTA[1].".php");
+
 		} else {
 			include_once("sistema/404.php");
 		}
@@ -36,6 +37,13 @@ elseif($_SESSION['user'] and contarQueryes("sessoes", "chave='".$_SESSION['user'
 		include_once("sistema/api/".$ROTA[1].".php");
 	} else if($ROTA[0] == 'redefinir-senha') {
 		include_once("sistema/redefinir-senha.php");
+	} else if($ROTA[0] == 'consulta') {
+		if(isset($ROTA[1]) AND $ROTA[1] = 'listar'){
+			include_once("sistema/consulta/listar.php");
+		}else{
+			include_once("sistema/consulta.php");
+		}
+
 	} else {
 		include_once("sistema/login.php");
 	}
