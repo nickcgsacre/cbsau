@@ -109,16 +109,9 @@ foreach($L_FORNECEDORES as $ITEM) {
 </nav>
 <div class="tab-content" id="nav-tabContent">
   <div class="tab-pane fade show active" id="nav-news" role="tabpanel" aria-labelledby="nav-news-tab">...</div>
-  <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">...</div>
-  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">...</div>
-  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">...</div>
-  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">...</div>
-  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">...</div>
-</div>
 				  
 	<script>
 		let clicks = 0;
-  
   function addClick() {
 	  clicks = clicks + 1;
 	  document.querySelector('.total-clicks').textContent
@@ -134,9 +127,6 @@ foreach($L_FORNECEDORES as $ITEM) {
 			clickButton();
 		}, 1000);
 		</script>
-
-	
-	
 					<div class="table-responsive">
 						<table id="invoices-list" class="table table-white-space table-bordered row-grouping display no-wrap icheck table-middle">
 						  <thead>
@@ -157,7 +147,6 @@ foreach($L_FORNECEDORES as $ITEM) {
 							<?php 
 							foreach($GUIAS as $GUIA) {
 								$plano = listar("planos", "id_plano = ".$GUIA->plano);
-
 							?>
 							<tr id="fatura-<?=$GUIA->id_guia?>">
 							  <td><?=str_pad($GUIA->id_guia, 6, 0, STR_PAD_LEFT)?></td>
@@ -179,9 +168,22 @@ foreach($L_FORNECEDORES as $ITEM) {
 									<br/>
 									<strong class="text-success">R$ <?php
 
-									$valorcomdesconto = $GUIA->valor - ($GUIA->valor * $plano[0]->cobrado / 100);	
+									if($plano[0]->cobrado < 100){
+									$valorcomdesconto = $GUIA->valor - ($GUIA->valor * $plano[0]->cobrado / 100);
+									echo number_format($valorcomdesconto,2,",",".");
+								}
+								if($plano[0]->cobrado == 100){
+									echo number_format($GUIA->valor,2,",",".");
+								}
+								if($plano[0]->cobrado > 100){
+									$juros = $plano[0]->cobrado / 100;
+									$valor = $GUIA->valor;									
+									$valorcomacrescimo = ($valor * $juros);
+									echo number_format($valorcomacrescimo,2,",",".");
+								}
+
 									
-									echo number_format($valorcomdesconto,2,",",".");?></strong>
+									?></strong>
 								<?php } ?>
 								
 							  </td>
