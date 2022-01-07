@@ -85,12 +85,14 @@ data-open="hover" data-menu="horizontal-menu" data-col="1-column">
                       <button type="submit" class="btn btn-info btn-lg btn-block ladda-button" data-style="zoom-in" id="btn-logar">
 						<i class="ft-unlock"></i> ACESSAR SISTEMA
 					  </button>
+    
                     </form>
                   </div>
                 </div>
                 <div class="card-footer">
                   <div class="">
                     <p class="float-sm-left text-center m-0"><a href="redefinir-senha" class="card-link">REDEFINIR SENHA</a></p>
+                    <p class="float-sm-left text-center" style="margin-left:10px;"><a href="<?=URL_SISTEMA?>/consulta" class="card-link">CONSULTAR</a></p>
                   </div>
                 </div>
               </div>
