@@ -100,7 +100,7 @@ foreach ($L_FORNECEDORES as $ITEM) {
 											<a class="nav-item nav-link" id="nav-cancelado-tab" data-toggle="tab" href="#nav-cancelado" role="tab" aria-controls="nav-cancelado" aria-selected="false">CANCELADA</a>
 										</div>
 									</nav>
-									<div class="tab-content" id="nav-tabContent">
+									<div class="tab-content mt-3" id="nav-tabContent">
 										<div class="tab-pane fade show active" id="nav-news" role="tabpanel" aria-labelledby="nav-news-tab">
 											<script>
 												let clicks = 0;
@@ -176,7 +176,8 @@ foreach ($L_FORNECEDORES as $ITEM) {
 																										}
 
 
-																										?></strong>
+																										?>
+																		</strong>
 																	<?php } ?>
 
 																</td>
@@ -188,7 +189,7 @@ foreach ($L_FORNECEDORES as $ITEM) {
 
 																	<?php
 																	if ($GUIA->status == 1) {
-																		echo '<span class="badge badge-default badge-success badge-lg">NOVA</span>';
+																		echo '<span class="badge badge-default badge-success badge-lg">AGUARDANDO ATENDIMENTO</span>';
 																	} else if ($GUIA->status == 7) {
 																		echo '<span class="badge badge-default badge-danger badge-lg">ATENDIDO</span>';
 																	} else if ($GUIA->status == 8) {
@@ -257,22 +258,556 @@ foreach ($L_FORNECEDORES as $ITEM) {
 											...
 										</div>
 										<div class="tab-pane fade" id="nav-aguardando-atendimento" role="tabpanel" aria-labelledby="nav-aguardando-atendimento-tab">
-											Aguardando Atendimento
+											<div class="table-responsive">
+												<table class="table table-white-space table-bordered row-grouping display no-wrap icheck table-middle">
+													<thead>
+														<tr>
+															<th id="n_guia">Nº GUIA</th>
+															<th>TITULAR/BENEFICIARIO</th>
+															<th>FORNECEDOR</th>
+															<th>VALOR</th>
+															<th>PLANO</th>
+															<th>DATA EMISSÃO</th>
+															<th>STATUS</th>
+															<th>AÇÕES</th>
+														</tr>
+													</thead>
+													<tbody>
+														<?php
+														$GUIAS_AGUARDANDO_ATENDIMENTO = array_filter($GUIAS, function ($GUIA) {
+															return $GUIA->status == 1;
+														});
+	
+														foreach ($GUIAS_AGUARDANDO_ATENDIMENTO as $GUIA) {
+															$plano = listar("planos", "id_plano = " . $GUIA->plano);
+														?>
+															<tr id="fatura-<?= $GUIA->id_guia ?>">
+																<td><?= str_pad($GUIA->id_guia, 6, 0, STR_PAD_LEFT) ?></td>
+																<td>
+																	<?= ($GUIA->titular > 0) ? $ASSOCIADOS[$GUIA->titular]->nome : "NÃO CADASTRADO" ?><br />
+																	<small><?= ($GUIA->associado == 1) ? $DEPENDENTES[$GUIA->dependente]->nome : $ASSOCIADOS[$GUIA->titular]->nome ?></small>
+																</td>
+																<td><?= ($GUIA->fornecedor == -1) ? $GUIA->obs : '' ?><?= ($FORNECEDORES[$GUIA->fornecedor]->nome_fantasia) ? $FORNECEDORES[$GUIA->fornecedor]->nome_fantasia : $FORNECEDORES[$GUIA->fornecedor]->razao_social ?></td>
+																<td>
+																	<?php if ($GUIA->parcelas > 1) { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<small class="text-success">R$ <?= number_format($GUIA->pagar, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success"><?= $GUIA->parcelas ?>x R$ <?= number_format($GUIA->pagar / $GUIA->parcelas, 2, ",", ".") ?></strong>
+																		<small class="text-danger">(R$ -<?= number_format($GUIA->saldo, 2, ",", ".") ?>)</small>
+																	<?php } else { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success">R$ 
+																			<?php
+																				if ($plano[0]->cobrado < 100) {
+																					$valorcomdesconto = $GUIA->valor - ($GUIA->valor * $plano[0]->cobrado / 100);
+																					echo number_format($valorcomdesconto, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado == 100) {
+																					echo number_format($GUIA->valor, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado > 100) {
+																					$juros = $plano[0]->cobrado / 100;
+																					$valor = $GUIA->valor;
+																					$valorcomacrescimo = ($valor * $juros);
+																					echo number_format($valorcomacrescimo, 2, ",", ".");
+																				}
+																			?>
+																		</strong>
+																	<?php } ?>
+																</td>
+																<td>
+																	<?= $plano[0]->nome; ?>
+																</td>
+																<td><?= date("d/m/Y", strtotime($GUIA->data_emissao)) ?></td>
+																<td>
+																	<?php
+																	echo '<span class="badge badge-default badge-secondary badge-lg">AGUARDANDO ATENDIMENTO</span>';
+																	?>
+																	</span>
+																</td>
+																<td>
+																	<span class="dropdown">
+																		<button id="btnSearchDrop<?= $GUIA->id_guia ?>" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" class="btn btn-primary dropdown-toggle dropdown-menu-right"><i class="ft-settings"></i></button>
+																		<span aria-labelledby="btnSearchDrop<?= $GUIA->id_guia ?>" class="dropdown-menu mt-1 dropdown-menu-right">
+																			<?php if ($GUIA->fornecedor != -1) { ?>
+																				<a href="javascript:gerarGuia(<?= $GUIA->id_guia ?>)" class="dropdown-item"><i class="la la-print"></i> IMPRIMIR</a>
+																			<?php } ?>
+																			<?php if ($GUIA->status == 1) { ?>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 0)" class="dropdown-item"><i class="la la-ban"></i> CANCELAR</a>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 7)" class="dropdown-item"><i class="la la-check"></i> ATENDIDO</a>
+																			<?php } ?>
+																			<a class="dropdown-item"><i class="la la-close"></i> FECHAR</a>
+																		</span>
+																	</span>
+																</td>
+															</tr>
+														<?php } ?>
+													</tbody>
+												</table>
+											</div>
 										</div>
 										<div class="tab-pane fade" id="nav-atendido" role="tabpanel" aria-labelledby="nav-atendido-tab">
-											Atendido
+											<div class="table-responsive">
+												<table class="table table-white-space table-bordered row-grouping display no-wrap icheck table-middle">
+													<thead>
+														<tr>
+															<th id="n_guia">Nº GUIA</th>
+															<th>TITULAR/BENEFICIARIO</th>
+															<th>FORNECEDOR</th>
+															<th>VALOR</th>
+															<th>PLANO</th>
+															<th>DATA EMISSÃO</th>
+															<th>STATUS</th>
+															<th>AÇÕES</th>
+														</tr>
+													</thead>
+													<tbody>
+														<?php
+														$GUIAS_ATENDIDO = array_filter($GUIAS, function ($GUIA) {
+															return $GUIA->status == 7;
+														});
+	
+														foreach ($GUIAS_ATENDIDO as $GUIA) {
+															$plano = listar("planos", "id_plano = " . $GUIA->plano);
+														?>
+															<tr id="fatura-<?= $GUIA->id_guia ?>">
+																<td><?= str_pad($GUIA->id_guia, 6, 0, STR_PAD_LEFT) ?></td>
+																<td>
+																	<?= ($GUIA->titular > 0) ? $ASSOCIADOS[$GUIA->titular]->nome : "NÃO CADASTRADO" ?><br />
+																	<small><?= ($GUIA->associado == 1) ? $DEPENDENTES[$GUIA->dependente]->nome : $ASSOCIADOS[$GUIA->titular]->nome ?></small>
+																</td>
+																<td><?= ($GUIA->fornecedor == -1) ? $GUIA->obs : '' ?><?= ($FORNECEDORES[$GUIA->fornecedor]->nome_fantasia) ? $FORNECEDORES[$GUIA->fornecedor]->nome_fantasia : $FORNECEDORES[$GUIA->fornecedor]->razao_social ?></td>
+																<td>
+																	<?php if ($GUIA->parcelas > 1) { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<small class="text-success">R$ <?= number_format($GUIA->pagar, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success"><?= $GUIA->parcelas ?>x R$ <?= number_format($GUIA->pagar / $GUIA->parcelas, 2, ",", ".") ?></strong>
+																		<small class="text-danger">(R$ -<?= number_format($GUIA->saldo, 2, ",", ".") ?>)</small>
+																	<?php } else { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success">R$ 
+																			<?php
+																				if ($plano[0]->cobrado < 100) {
+																					$valorcomdesconto = $GUIA->valor - ($GUIA->valor * $plano[0]->cobrado / 100);
+																					echo number_format($valorcomdesconto, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado == 100) {
+																					echo number_format($GUIA->valor, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado > 100) {
+																					$juros = $plano[0]->cobrado / 100;
+																					$valor = $GUIA->valor;
+																					$valorcomacrescimo = ($valor * $juros);
+																					echo number_format($valorcomacrescimo, 2, ",", ".");
+																				}
+																			?>
+																		</strong>
+																	<?php } ?>
+																</td>
+																<td>
+																	<?= $plano[0]->nome; ?>
+																</td>
+																<td><?= date("d/m/Y", strtotime($GUIA->data_emissao)) ?></td>
+																<td>
+																	<?php
+																	echo '<span class="badge badge-default badge-primary badge-lg">ATENDIDO</span>';
+																	?>
+																	</span>
+																</td>
+																<td>
+																	<span class="dropdown">
+																		<button id="btnSearchDrop<?= $GUIA->id_guia ?>" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" class="btn btn-primary dropdown-toggle dropdown-menu-right"><i class="ft-settings"></i></button>
+																		<span aria-labelledby="btnSearchDrop<?= $GUIA->id_guia ?>" class="dropdown-menu mt-1 dropdown-menu-right">
+																			<?php if ($GUIA->fornecedor != -1) { ?>
+																				<a href="javascript:gerarGuia(<?= $GUIA->id_guia ?>)" class="dropdown-item"><i class="la la-print"></i> IMPRIMIR</a>
+																			<?php } ?>
+																			<?php if ($GUIA->status == 7) { ?>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 0)" class="dropdown-item"><i class="la la-ban"></i> CANCELAR</a>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 8)" class="dropdown-item"><i class="fa fa-money"></i> FATURADO</a>
+																			<?php } ?>
+																			<a class="dropdown-item"><i class="la la-close"></i> FECHAR</a>
+																		</span>
+																	</span>
+																</td>
+															</tr>
+														<?php } ?>
+													</tbody>
+												</table>
+											</div>
 										</div>
 										<div class="tab-pane fade" id="nav-aguardando-pagamento" role="tabpanel" aria-labelledby="nav-aguardando-pagamento-tab">
-											Aguardando Pagamento
+											<div class="table-responsive">
+												<table class="table table-white-space table-bordered row-grouping display no-wrap icheck table-middle">
+													<thead>
+														<tr>
+															<th id="n_guia">Nº GUIA</th>
+															<th>TITULAR/BENEFICIARIO</th>
+															<th>FORNECEDOR</th>
+															<th>VALOR</th>
+															<th>PLANO</th>
+															<th>DATA EMISSÃO</th>
+															<th>STATUS</th>
+															<th>AÇÕES</th>
+														</tr>
+													</thead>
+													<tbody>
+														<?php
+														$GUIAS_AGUARDANDO_PAGAMENTO = array_filter($GUIAS, function ($GUIA) {
+															return $GUIA->status == 8;
+														});
+	
+														foreach ($GUIAS_AGUARDANDO_PAGAMENTO as $GUIA) {
+															$plano = listar("planos", "id_plano = " . $GUIA->plano);
+														?>
+															<tr id="fatura-<?= $GUIA->id_guia ?>">
+																<td><?= str_pad($GUIA->id_guia, 6, 0, STR_PAD_LEFT) ?></td>
+																<td>
+																	<?= ($GUIA->titular > 0) ? $ASSOCIADOS[$GUIA->titular]->nome : "NÃO CADASTRADO" ?><br />
+																	<small><?= ($GUIA->associado == 1) ? $DEPENDENTES[$GUIA->dependente]->nome : $ASSOCIADOS[$GUIA->titular]->nome ?></small>
+																</td>
+																<td><?= ($GUIA->fornecedor == -1) ? $GUIA->obs : '' ?><?= ($FORNECEDORES[$GUIA->fornecedor]->nome_fantasia) ? $FORNECEDORES[$GUIA->fornecedor]->nome_fantasia : $FORNECEDORES[$GUIA->fornecedor]->razao_social ?></td>
+																<td>
+																	<?php if ($GUIA->parcelas > 1) { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<small class="text-success">R$ <?= number_format($GUIA->pagar, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success"><?= $GUIA->parcelas ?>x R$ <?= number_format($GUIA->pagar / $GUIA->parcelas, 2, ",", ".") ?></strong>
+																		<small class="text-danger">(R$ -<?= number_format($GUIA->saldo, 2, ",", ".") ?>)</small>
+																	<?php } else { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success">R$ 
+																			<?php
+																				if ($plano[0]->cobrado < 100) {
+																					$valorcomdesconto = $GUIA->valor - ($GUIA->valor * $plano[0]->cobrado / 100);
+																					echo number_format($valorcomdesconto, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado == 100) {
+																					echo number_format($GUIA->valor, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado > 100) {
+																					$juros = $plano[0]->cobrado / 100;
+																					$valor = $GUIA->valor;
+																					$valorcomacrescimo = ($valor * $juros);
+																					echo number_format($valorcomacrescimo, 2, ",", ".");
+																				}
+																			?>
+																		</strong>
+																	<?php } ?>
+																</td>
+																<td>
+																	<?= $plano[0]->nome; ?>
+																</td>
+																<td><?= date("d/m/Y", strtotime($GUIA->data_emissao)) ?></td>
+																<td>
+																	<?php
+																	echo '<span class="badge badge-default badge-warning badge-lg">AGUARDANDO PAGAMENTO</span>';
+																	?>
+																	</span>
+																</td>
+																<td>
+																	<span class="dropdown">
+																		<button id="btnSearchDrop<?= $GUIA->id_guia ?>" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" class="btn btn-primary dropdown-toggle dropdown-menu-right"><i class="ft-settings"></i></button>
+																		<span aria-labelledby="btnSearchDrop<?= $GUIA->id_guia ?>" class="dropdown-menu mt-1 dropdown-menu-right">
+																			<?php if ($GUIA->fornecedor != -1) { ?>
+																				<a href="javascript:gerarGuia(<?= $GUIA->id_guia ?>)" class="dropdown-item"><i class="la la-print"></i> IMPRIMIR</a>
+																			<?php } ?>
+																			<?php if ($GUIA->status == 1) { ?>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 0)" class="dropdown-item"><i class="la la-ban"></i> CANCELAR</a>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 7)" class="dropdown-item"><i class="la la-check"></i> ATENDIDO</a>
+																			<?php } ?>
+																			<a class="dropdown-item"><i class="la la-close"></i> FECHAR</a>
+																		</span>
+																	</span>
+																</td>
+															</tr>
+														<?php } ?>
+													</tbody>
+												</table>
+											</div>
 										</div>
 										<div class="tab-pane fade" id="nav-parcelado" role="tabpanel" aria-labelledby="nav-parcelado-tab">
-											Parcelado
+											<div class="table-responsive">
+												<table class="table table-white-space table-bordered row-grouping display no-wrap icheck table-middle">
+													<thead>
+														<tr>
+															<th id="n_guia">Nº GUIA</th>
+															<th>TITULAR/BENEFICIARIO</th>
+															<th>FORNECEDOR</th>
+															<th>VALOR</th>
+															<th>PLANO</th>
+															<th>DATA EMISSÃO</th>
+															<th>STATUS</th>
+															<th>AÇÕES</th>
+														</tr>
+													</thead>
+													<tbody>
+														<?php
+														$GUIAS_PARCELADO = array_filter($GUIAS, function ($GUIA) {
+															return $GUIA->status == 10;
+														});
+	
+														foreach ($GUIAS_PARCELADO as $GUIA) {
+															$plano = listar("planos", "id_plano = " . $GUIA->plano);
+														?>
+															<tr id="fatura-<?= $GUIA->id_guia ?>">
+																<td><?= str_pad($GUIA->id_guia, 6, 0, STR_PAD_LEFT) ?></td>
+																<td>
+																	<?= ($GUIA->titular > 0) ? $ASSOCIADOS[$GUIA->titular]->nome : "NÃO CADASTRADO" ?><br />
+																	<small><?= ($GUIA->associado == 1) ? $DEPENDENTES[$GUIA->dependente]->nome : $ASSOCIADOS[$GUIA->titular]->nome ?></small>
+																</td>
+																<td><?= ($GUIA->fornecedor == -1) ? $GUIA->obs : '' ?><?= ($FORNECEDORES[$GUIA->fornecedor]->nome_fantasia) ? $FORNECEDORES[$GUIA->fornecedor]->nome_fantasia : $FORNECEDORES[$GUIA->fornecedor]->razao_social ?></td>
+																<td>
+																	<?php if ($GUIA->parcelas > 1) { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<small class="text-success">R$ <?= number_format($GUIA->pagar, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success"><?= $GUIA->parcelas ?>x R$ <?= number_format($GUIA->pagar / $GUIA->parcelas, 2, ",", ".") ?></strong>
+																		<small class="text-danger">(R$ -<?= number_format($GUIA->saldo, 2, ",", ".") ?>)</small>
+																	<?php } else { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success">R$ 
+																			<?php
+																				if ($plano[0]->cobrado < 100) {
+																					$valorcomdesconto = $GUIA->valor - ($GUIA->valor * $plano[0]->cobrado / 100);
+																					echo number_format($valorcomdesconto, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado == 100) {
+																					echo number_format($GUIA->valor, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado > 100) {
+																					$juros = $plano[0]->cobrado / 100;
+																					$valor = $GUIA->valor;
+																					$valorcomacrescimo = ($valor * $juros);
+																					echo number_format($valorcomacrescimo, 2, ",", ".");
+																				}
+																			?>
+																		</strong>
+																	<?php } ?>
+																</td>
+																<td>
+																	<?= $plano[0]->nome; ?>
+																</td>
+																<td><?= date("d/m/Y", strtotime($GUIA->data_emissao)) ?></td>
+																<td>
+																	<?php
+																	echo '<span class="badge badge-default badge-info badge-lg">PARCELADO</span>';
+																	?>
+																	</span>
+																</td>
+																<td>
+																	<span class="dropdown">
+																		<button id="btnSearchDrop<?= $GUIA->id_guia ?>" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" class="btn btn-primary dropdown-toggle dropdown-menu-right"><i class="ft-settings"></i></button>
+																		<span aria-labelledby="btnSearchDrop<?= $GUIA->id_guia ?>" class="dropdown-menu mt-1 dropdown-menu-right">
+																			<?php if ($GUIA->fornecedor != -1) { ?>
+																				<a href="javascript:gerarGuia(<?= $GUIA->id_guia ?>)" class="dropdown-item"><i class="la la-print"></i> IMPRIMIR</a>
+																			<?php } ?>
+																			<?php if ($GUIA->status == 8 and $GUIA->parcelas == 1) { ?>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 0)" class="dropdown-item"><i class="la la-ban"></i> CANCELAR</a>
+																				<!--<a href="javascript:parcelarGuia(<?= $GUIA->id_guia ?>, 9)" class="dropdown-item"><i class="fa fa-object-ungroup"></i> PARCELAR</a>-->
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 9)" class="dropdown-item"><i class="fa fa-check-square"></i> PAGO</a>
+																			<?php } ?>
+																			<?php if ($GUIA->status == 8 and $GUIA->parcelas > 1) { ?>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 0)" class="dropdown-item"><i class="la la-ban"></i> CANCELAR</a>
+																				<a href="javascript:informacoesGuia(<?= $GUIA->id_guia ?>)" class="dropdown-item"><i class="fa fa-info-circle"></i> INFORMAÇÕES</a>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 9)" class="dropdown-item"><i class="fa fa-check-square"></i> PAGAR PARCELA</a>
+																			<?php } ?>
+																			<a class="dropdown-item"><i class="la la-close"></i> FECHAR</a>
+																		</span>
+																	</span>
+																</td>
+															</tr>
+														<?php } ?>
+													</tbody>
+												</table>
+											</div>
 										</div>
 										<div class="tab-pane fade" id="nav-pago" role="tabpanel" aria-labelledby="nav-pago-tab">
-											Pago
+											<div class="table-responsive">
+												<table class="table table-white-space table-bordered row-grouping display no-wrap icheck table-middle">
+													<thead>
+														<tr>
+															<th id="n_guia">Nº GUIA</th>
+															<th>TITULAR/BENEFICIARIO</th>
+															<th>FORNECEDOR</th>
+															<th>VALOR</th>
+															<th>PLANO</th>
+															<th>DATA EMISSÃO</th>
+															<th>STATUS</th>
+															<th>DATA PAGAMENTO</th>
+															<th>AÇÕES</th>
+														</tr>
+													</thead>
+													<tbody>
+														<?php
+														$GUIAS_PAGO = array_filter($GUIAS, function ($GUIA) {
+															return $GUIA->status == 9;
+														});
+	
+														foreach ($GUIAS_PAGO as $GUIA) {
+															$plano = listar("planos", "id_plano = " . $GUIA->plano);
+														?>
+															<tr id="fatura-<?= $GUIA->id_guia ?>">
+																<td><?= str_pad($GUIA->id_guia, 6, 0, STR_PAD_LEFT) ?></td>
+																<td>
+																	<?= ($GUIA->titular > 0) ? $ASSOCIADOS[$GUIA->titular]->nome : "NÃO CADASTRADO" ?><br />
+																	<small><?= ($GUIA->associado == 1) ? $DEPENDENTES[$GUIA->dependente]->nome : $ASSOCIADOS[$GUIA->titular]->nome ?></small>
+																</td>
+																<td><?= ($GUIA->fornecedor == -1) ? $GUIA->obs : '' ?><?= ($FORNECEDORES[$GUIA->fornecedor]->nome_fantasia) ? $FORNECEDORES[$GUIA->fornecedor]->nome_fantasia : $FORNECEDORES[$GUIA->fornecedor]->razao_social ?></td>
+																<td>
+																	<?php if ($GUIA->parcelas > 1) { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<small class="text-success">R$ <?= number_format($GUIA->pagar, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success"><?= $GUIA->parcelas ?>x R$ <?= number_format($GUIA->pagar / $GUIA->parcelas, 2, ",", ".") ?></strong>
+																		<small class="text-danger">(R$ -<?= number_format($GUIA->saldo, 2, ",", ".") ?>)</small>
+																	<?php } else { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success">R$ 
+																			<?php
+																				if ($plano[0]->cobrado < 100) {
+																					$valorcomdesconto = $GUIA->valor - ($GUIA->valor * $plano[0]->cobrado / 100);
+																					echo number_format($valorcomdesconto, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado == 100) {
+																					echo number_format($GUIA->valor, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado > 100) {
+																					$juros = $plano[0]->cobrado / 100;
+																					$valor = $GUIA->valor;
+																					$valorcomacrescimo = ($valor * $juros);
+																					echo number_format($valorcomacrescimo, 2, ",", ".");
+																				}
+																			?>
+																		</strong>
+																	<?php } ?>
+																</td>
+																<td>
+																	<?= $plano[0]->nome; ?>
+																</td>
+																<td><?= date("d/m/Y", strtotime($GUIA->data_emissao)) ?></td>
+																<td>
+																	<?php
+																	echo '<span class="badge badge-default badge-success badge-lg">PAGO</span>';
+																	?>
+																	</span>
+																</td>
+																<td>
+																	<?php echo date("d/m/Y", strtotime($GUIA->data_pagamento)) ?>
+																</td>
+																<td>
+																	<span class="dropdown">
+																		<button id="btnSearchDrop<?= $GUIA->id_guia ?>" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" class="btn btn-primary dropdown-toggle dropdown-menu-right"><i class="ft-settings"></i></button>
+																		<span aria-labelledby="btnSearchDrop<?= $GUIA->id_guia ?>" class="dropdown-menu mt-1 dropdown-menu-right">
+																			<?php if ($GUIA->fornecedor != -1) { ?>
+																				<a href="javascript:gerarGuia(<?= $GUIA->id_guia ?>)" class="dropdown-item"><i class="la la-print"></i> IMPRIMIR</a>
+																			<?php } ?>
+																			<a class="dropdown-item"><i class="la la-close"></i> FECHAR</a>
+																		</span>
+																	</span>
+																</td>
+															</tr>
+														<?php } ?>
+													</tbody>
+												</table>
+											</div>
 										</div>
 										<div class="tab-pane fade" id="nav-cancelado" role="tabpanel" aria-labelledby="nav-cancelado-tab">
-											Cancelado
+											<div class="table-responsive">
+												<table class="table table-white-space table-bordered row-grouping display no-wrap icheck table-middle">
+													<thead>
+														<tr>
+															<th id="n_guia">Nº GUIA</th>
+															<th>TITULAR/BENEFICIARIO</th>
+															<th>FORNECEDOR</th>
+															<th>VALOR</th>
+															<th>PLANO</th>
+															<th>DATA EMISSÃO</th>
+															<th>STATUS</th>
+															<th>AÇÕES</th>
+														</tr>
+													</thead>
+													<tbody>
+														<?php
+														$GUIAS_CANCELADO = array_filter($GUIAS, function ($GUIA) {
+															return $GUIA->status != 1 && $GUIA->status != 7  && $GUIA->status != 8 && $GUIA->status != 9 && $GUIA->status != 10;
+														});
+	
+														foreach ($GUIAS_CANCELADO as $GUIA) {
+															$plano = listar("planos", "id_plano = " . $GUIA->plano);
+														?>
+															<tr id="fatura-<?= $GUIA->id_guia ?>">
+																<td><?= str_pad($GUIA->id_guia, 6, 0, STR_PAD_LEFT) ?></td>
+																<td>
+																	<?= ($GUIA->titular > 0) ? $ASSOCIADOS[$GUIA->titular]->nome : "NÃO CADASTRADO" ?><br />
+																	<small><?= ($GUIA->associado == 1) ? $DEPENDENTES[$GUIA->dependente]->nome : $ASSOCIADOS[$GUIA->titular]->nome ?></small>
+																</td>
+																<td><?= ($GUIA->fornecedor == -1) ? $GUIA->obs : '' ?><?= ($FORNECEDORES[$GUIA->fornecedor]->nome_fantasia) ? $FORNECEDORES[$GUIA->fornecedor]->nome_fantasia : $FORNECEDORES[$GUIA->fornecedor]->razao_social ?></td>
+																<td>
+																	<?php if ($GUIA->parcelas > 1) { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<small class="text-success">R$ <?= number_format($GUIA->pagar, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success"><?= $GUIA->parcelas ?>x R$ <?= number_format($GUIA->pagar / $GUIA->parcelas, 2, ",", ".") ?></strong>
+																		<small class="text-danger">(R$ -<?= number_format($GUIA->saldo, 2, ",", ".") ?>)</small>
+																	<?php } else { ?>
+																		<small class="text-tachado text-danger">R$ <?= number_format($GUIA->valor, 2, ",", ".") ?></small>
+																		<br />
+																		<strong class="text-success">R$ 
+																			<?php
+																				if ($plano[0]->cobrado < 100) {
+																					$valorcomdesconto = $GUIA->valor - ($GUIA->valor * $plano[0]->cobrado / 100);
+																					echo number_format($valorcomdesconto, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado == 100) {
+																					echo number_format($GUIA->valor, 2, ",", ".");
+																				}
+																				if ($plano[0]->cobrado > 100) {
+																					$juros = $plano[0]->cobrado / 100;
+																					$valor = $GUIA->valor;
+																					$valorcomacrescimo = ($valor * $juros);
+																					echo number_format($valorcomacrescimo, 2, ",", ".");
+																				}
+																			?>
+																		</strong>
+																	<?php } ?>
+																</td>
+																<td>
+																	<?= $plano[0]->nome; ?>
+																</td>
+																<td><?= date("d/m/Y", strtotime($GUIA->data_emissao)) ?></td>
+																<td>
+																	<?php
+																	echo '<span class="badge badge-default badge-dark badge-lg">CANCELADA</span>';
+																	?>
+																	</span>
+																</td>
+																<td>
+																	<span class="dropdown">
+																		<button id="btnSearchDrop<?= $GUIA->id_guia ?>" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" class="btn btn-primary dropdown-toggle dropdown-menu-right"><i class="ft-settings"></i></button>
+																		<span aria-labelledby="btnSearchDrop<?= $GUIA->id_guia ?>" class="dropdown-menu mt-1 dropdown-menu-right">
+																			<?php if ($GUIA->fornecedor != -1) { ?>
+																				<a href="javascript:gerarGuia(<?= $GUIA->id_guia ?>)" class="dropdown-item"><i class="la la-print"></i> IMPRIMIR</a>
+																			<?php } ?>
+																			<?php if ($GUIA->status == 1) { ?>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 0)" class="dropdown-item"><i class="la la-ban"></i> CANCELAR</a>
+																				<a href="javascript:statusGuia(<?= $GUIA->id_guia ?>, 7)" class="dropdown-item"><i class="la la-check"></i> ATENDIDO</a>
+																			<?php } ?>
+																			<a class="dropdown-item"><i class="la la-close"></i> FECHAR</a>
+																		</span>
+																	</span>
+																</td>
+															</tr>
+														<?php } ?>
+													</tbody>
+												</table>
+											</div>
 										</div>
 									</div>
 								</div>

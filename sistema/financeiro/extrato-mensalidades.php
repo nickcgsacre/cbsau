@@ -3,6 +3,7 @@
 
 $MES = $_POST['mes'];
 $ANO = $_POST['ano'];
+$ASSOCIADO = $_POST['associaodo'];
 
 $MESES = array(1 => "Janeiro", 2 => "Fevereiro", 3 => "Março", 4 => "Abril", 5 => "Maio", 6 => "Junho", 7 => "Julho", 8 => "Agosto", 9 => "Setembro", 10 => "Outubro", 11 => "Novmebro", 12 => "Dezembro");
 
@@ -35,7 +36,7 @@ if($total == 0) {
 	}
 }
 
-$MENSALIDADES = listar("mensalidades", "mes='$MES' AND ano='$ANO'");
+$MENSALIDADES = listar("mensalidades", "mes='$MES' AND ano='$ANO' AND associado='$ASSOCIADO'");
 ?>
   
 	<div class="printable">
@@ -67,7 +68,7 @@ $MENSALIDADES = listar("mensalidades", "mes='$MES' AND ano='$ANO'");
 			  <table class="table">
 				<thead>
 				  <tr>
-					<th class="text-center" style="width: 10%!important">SEG.</th>
+					<th class="text-center" style="width: 10%!important">SEG</th>
 					<th class="text-center" style="width: 15%!important">MATRÍCULA</th>
 					<th class="text-center" style="width: 50%!important">ASSOCIADO</th>
 					<th class="text-center" style="width: 10%!important">DEPENDENTES</th>

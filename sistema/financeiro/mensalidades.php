@@ -5,13 +5,9 @@ define("JS", '');
 include_once(__DIR__."/../header.php");
 include_once(__DIR__."/../menu.php");
 
+$associados = listar('associados', "status='1' order by nome");
+
 ?>
-
-  
-  <!-- END VENDOR CSS-->
-
-
-  <!-- ////////////////////////////////////////////////////////////////////////////-->
   <div class="app-content content">
     <div class="content-wrapper">
       <div class="content-header row">
@@ -30,21 +26,6 @@ include_once(__DIR__."/../menu.php");
             </div>
           </div>
         </div>
-		<!--
-        <div class="content-header-right col-md-6 col-12">
-          <div class="media width-500 float-right">
-            <div class="media-body media-right text-right">
-              
-			  <div class="btn-group" role="group" aria-label="First Group">
-				  <button type="button" class="btn btn-icon btn-outline-danger" onclick="removerEmMassa()"><i class="la la-trash"></i> EXCLUÍR SELECIONADOS</button>
-				  <a href="<?=URL_SISTEMA?>/ordens/novo" class="btn btn-icon btn-outline-primary"><i class="la la-plus"></i> NOVA FICHA</a>
-				</div>
-			  
-			  
-            </div>
-          </div>
-        </div> 
-		-->
       </div>
       <div class="content-body">
 	  
@@ -71,9 +52,21 @@ include_once(__DIR__."/../menu.php");
 										  <input type="hidden" name="acao" value="mensalidades" />
 									  
 										  <div class="row">
-											<div class="col-4">
-											  <fieldset class="form-group position-relative">
-												<select class="form-control form-control-xl input-xl" id="selecionaAno" name="ano">
+											<div class="col-4 mr-2">
+												<fieldset class="form-group">
+													<label for="">Associado</label>
+													<select class="form-control form-control-xl select2 input-xl" id="selecionaAssociado" name="associado">
+														<option value="">Selecione um associado</option>
+														<?php foreach($associados as $associado) { ?> 
+															<option value="<?=$associado->id_associado?>"><?=$associado->nome?></option>
+														<?php } ?>
+													</select>
+												</fieldset>
+											</div>
+											<div class="col-2 mr-2">
+											  <fieldset class="form-group">
+												<label for="">Ano</label>
+												<select class="form-control form-control-xl select2 input-xl" multiple id="selecionaAno" name="ano[]">
 													<option value="">Selecione o ano</option>
 													<?php for($i= date('Y'); $i >= date('Y') - 5;$i--) { ?>
 													<option value="<?=$i?>"><?=$i?></option>
@@ -81,9 +74,10 @@ include_once(__DIR__."/../menu.php");
 											    </select>
 											  </fieldset>
 											</div>
-											<div class="col-4">
-											  <fieldset class="form-group position-relative">
-												<select class="form-control form-control-xl input-xl" id="selecionaMes" name="mes">
+											<div class="col-2 mr-2">
+											  <fieldset class="form-group">
+												<label for="">Mês</label>
+												<select class="form-control form-control-xl select2 input-xl" placeholder="Mês" multiple id="selecionaMes" name="mes[]">
 													<option value="">Selecione um mês</option>
 													<option value="1">Janeiro</option>
 													<option value="2">Fevereiro</option>
@@ -100,8 +94,8 @@ include_once(__DIR__."/../menu.php");
 											    </select>
 											  </fieldset>
 											</div>
-											<div class="col-4 text-center">
-											  <button type="submit" class="btn btn-primary btn-block btn-lg">
+											<div class="col-1 text-center">
+											  <button type="submit" class="btn btn-primary mt-2">
 												<i class="fa fa-magic"></i>  GERAR EXTRATO
 											  </button>
 											</div>
@@ -135,5 +129,10 @@ include_once(__DIR__."/../menu.php");
   <!-- ////////////////////////////////////////////////////////////////////////////-->
  
  
+<!-- <script>
+	$(document).ready(function() {
+		alert('funciona');
+	});
+</script> -->
   
 <?php include_once(__DIR__."/../footer.php"); ?>

@@ -93,11 +93,13 @@ var extrato = {
 		})
 	},
 	mensalidades: function(form) {
-		let dados = $( form ).serialize();	
-		let J_dados = $( form ).serializeArray()
+		let dados = $( form ).serialize();
 		
-		let ano = J_dados[1]['value']
-		let mes = J_dados[2]['value']
+		let J_dados = $( form ).serializeArray();
+
+		let associado = J_dados[1]['value']
+		let ano = J_dados[2]['value']
+		let mes = J_dados[3]['value']
 		
 		if(ano == '') {
 			swal("Oops!", "Você deve selecionar um ano!")
@@ -131,7 +133,7 @@ var extrato = {
 		
 		$.ajax({
 			type: "POST",
-			url: URL_SISTEMA+"/financeiro/extrato-mensalidades",
+			url: URL_SISTEMA+"/financeiro/extrato-mensalidade-novo",
 			data: dados,
 			success: function( data ){
 				$(carregando).unblock();
@@ -140,6 +142,8 @@ var extrato = {
 					scrollTop: $('.imprime-resultado').offset().top
 				}, 2000);
 				
+				console.log(data);
+
 				$('.imprime-resultado').html(`
 				<div class="card">
 				  <div class="card-header">
@@ -157,9 +161,7 @@ var extrato = {
 					</div>
 				  </div>
 				</div>
-				`)
-					
-					
+				`)	
 			}
 		})
 	}

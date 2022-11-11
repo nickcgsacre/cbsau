@@ -216,3 +216,7 @@ if(URL_SISTEMA AND $_SESSION['user']) {
 	$Json = array("resposta" => 0, "titulo" => "Acesso Negado", "msg" => "Você não tem permissão para acessar o sistema" );
 }
 echo json_encode($Json);
+
+// function salvarMensalidade($associado, ) {
+// 	$mensalidade = gravar("mensalidades", )
+// }

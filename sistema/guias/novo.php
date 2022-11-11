@@ -166,22 +166,6 @@ foreach($PLANOS as $PLANO) {
 									  </select>
 									</div>
 							</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-							  
 							  <div class="col-md-12">
 								<div class="form-group">
 								  <label for="servicos">Serviço(s)</label>
@@ -204,11 +188,7 @@ foreach($PLANOS as $PLANO) {
 						
 						</form>
                       </div>
-					  
-					 
 					</div>
-					
-					
                   </div>
                 </div>
               </div>

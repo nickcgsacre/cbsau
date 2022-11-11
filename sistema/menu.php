@@ -159,8 +159,8 @@ data-menu="horizontal-menu" data-col="2-columns">
         </li>
 		<?php } ?>	
 		
-		<?php if($DADOS_USUARIO->tipo == 1) { ?>
-		<li class="dropdown nav-item" data-menu="dropdown"><a class="dropdown-toggle nav-link" href="#configuracoes" data-toggle="dropdown"><i class="la la-cogs"></i><span>Configurações</span></a>
+		  <?php if($DADOS_USUARIO->tipo == 1) { ?>
+		    <li class="dropdown nav-item" data-menu="dropdown"><a class="dropdown-toggle nav-link" href="#configuracoes" data-toggle="dropdown"><i class="la la-cogs"></i><span>Configurações</span></a>
           <ul class="dropdown-menu">
             <li class="dropdown"><a class="dropdown-item" href="<?=URL_SISTEMA?>/cargos/listar">CONFIGURAR CARGOS</a>
             </li>
@@ -174,7 +174,15 @@ data-menu="horizontal-menu" data-col="2-columns">
             </li>
           </ul>
         </li>
-		<?php } ?>	
+	  	<?php } ?>
+      <?php if($DADOS_USUARIO->tipo == 1) { ?>
+        <li class="dropdown nav-item" data-menu="dropdown">
+          <a class="nav-link" href="<?=URL_SISTEMA?>/guias-novo/index"><i class="fa fa-copy"></i>
+            <span>Guias</span>
+          </a>
+        </li>
+      <?php } ?>
+    
       </ul>
     </div>
   </div>
