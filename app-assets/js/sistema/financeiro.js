@@ -92,24 +92,23 @@ var extrato = {
 			}
 		})
 	},
-	mensalidades: function(form) {
+	mensalidades: function(form, e) {
+		e.preventDefault();
+
 		let dados = $( form ).serialize();
 		
-		let J_dados = $( form ).serializeArray();
+		// let J_dados = $( form ).serializeArray();
 
-		let associado = J_dados[1]['value']
-		let ano = J_dados[2]['value']
-		let mes = J_dados[3]['value']
-		
-		if(ano == '') {
-			swal("Oops!", "Você deve selecionar um ano!")
-			return false;
-		}
-		
-		if(mes == '') {
-			swal("Oops!", "Você deve selecionar um mês!")
-			return false;
-		}
+		// if ()
+		// let associado = J_dados[1]['value']
+
+		// if (J_dados[2] !== null && J_dados[3] !== '') {
+		// 	let ano = J_dados[2]['value']
+		// }
+
+		// if (J_dados[3] !== null && J_dados[3] !== '') {
+		// 	let mes = J_dados[3]['value']
+		// }
 		
 		let carregando = $('body');
 		$(carregando).block({
@@ -164,5 +163,7 @@ var extrato = {
 				`)	
 			}
 		})
+
+		return false;
 	}
 }

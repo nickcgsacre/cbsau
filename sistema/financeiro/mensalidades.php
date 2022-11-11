@@ -48,7 +48,7 @@ $associados = listar('associados', "status='1' order by nome");
 								<div class="row">
 									<div class="col-12">
 									  
-									  <form class="form form-horizontal" id="b1" onsubmit="extrato.mensalidades(this); return false;">
+									  <form class="form form-horizontal" id="b1" onsubmit="extrato.mensalidades(this, event)">
 										  <input type="hidden" name="acao" value="mensalidades" />
 									  
 										  <div class="row">

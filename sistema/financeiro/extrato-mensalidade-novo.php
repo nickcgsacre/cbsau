@@ -1,16 +1,12 @@
 <?php
-
 $MES = $_POST['mes'];
 $ANO = $_POST['ano'];
 $ASSOCIADO = $_POST['associado'];
 
-$associadoId = intval($_POST['associado']);
-$ASSOCIADO_OBJECT = buscar("associados", "id_associado='$associadoId'");
-
-$query = "1 = 1 ";
+$query = "associado IS NOT NULL ";
 
 if ($ASSOCIADO) {
-    $query = $query . "AND associado_id = '$ASSOCIAOD' ";
+    $query = $query . "AND associado = $ASSOCIADO ";
 }
 
 if (!empty($MES)) {
@@ -47,7 +43,7 @@ $MENSALIDADES = listar("mensalidades", $query);
 				<div class="media-body">
 				  <ul class="px-0 list-unstyled">
 					<li class="text-bold-800"><h3>CBSAÚDE</h3></li>
-					<li><h5>Relatório de Mensalidades do Associado: <?=$ASSOCIADO_OBJECT->nome?></h5></li>
+					<li><h5>Relatório de Mensalidades dos Associados</li>
 				  </ul>
 				</div>
 			  </div>
@@ -59,7 +55,7 @@ $MENSALIDADES = listar("mensalidades", $query);
 		<!-- Invoice Items Details -->
 		<div id="invoice-items-details" class="pt-2">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover dataTable">
                     <thead>
                         <tr>
                             <th>QTD. PLANOS</th>
