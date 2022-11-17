@@ -36,7 +36,7 @@ $MESES = array(1 => "Janeiro", 2 => "Fevereiro", 3 => "Março", 4 => "Abril", 5 
 			  <table class="table">
 				<thead>
 				  <tr>
-					<th class="text-center" style="width: 10%!important">SEG.</th>
+					<th class="text-center" style="width: 10%!important">SEG</th>
 					<th class="text-center" style="width: 15%!important">MATRÍCULA</th>
 					<th class="text-center" style="width: 60%!important">ASSOCIADO</th>
 					<th class="text-center" style="width: 15%!important">VALOR PAGO (R$)</th>
@@ -45,43 +45,22 @@ $MESES = array(1 => "Janeiro", 2 => "Fevereiro", 3 => "Março", 4 => "Abril", 5 
 				  </tr>
 				</thead>
 				<tbody>
-					<?php $TOTAL = 0; $seg = 1; 
-					$ASSOCIADOS = listar("associados");
-					foreach($ASSOCIADOS as $ASSOCIADO) { 
-						$SERVICOS = listar("guias", "data_emissao BETWEEN '$ANO-$MES-01' AND '$ANO-$MES-31' AND titular = '".$ASSOCIADO->id_associado."'");
-						
-						
-						$PAGO = 0;
-						$PAGAR = 0;
-						$TOTALPAGAR = 0;
-						foreach($SERVICOS as $DADOS) {
-							if($DADOS->obs == "PAGAMENTO DESCONTADO"){
-								$PAGO += $DADOS->valor;
-							}else{
-								$TOTALPAGAR += $DADOS->valor;
-							}
-
-							if($DADOS->parcelas > 1) { 
-								$DADOS->pagar = $DADOS->pagar / $DADOS->parcelas;
-							}
-							$PAGAR += $DADOS->pagar;
-
-						}
-
-						
-						if($PAGAR > 0) {
+					<?php
+						$GUIAS = listar("guias", "year(data_emissao) = $ANO and month(data_emissao) = $MES and associado is not null");	
+					?>
+					<?php 
+						foreach($GUIAS as $GUIA) {
+							$associado = buscar("associados", "id_associado = $GUIA->associado");
 					?>
 					<tr>
-						<td class="text-center" style="width: 10%!important"><strong><?=$seg++?></strong></td>
-						<td class="text-center" style="width: 15%!important"><?=($ASSOCIADO->matricula)?$ASSOCIADO->matricula:'N/A'?></td>
-						<td style="width: 60%!important"><?=$ASSOCIADO->nome?></td>
-
-
-						<td class="text-center" style="width: 15%!important">R$ <?=number_format(abs($PAGO), 2, ",", ".")?></td>
-						<td class="text-center" style="width: 15%!important">R$ <?=number_format($PAGAR, 2, ",", ".")?></td>
-						<td class="text-center" style="width: 15%!important">R$ <?=number_format(abs($PAGO)+$PAGAR, 2, ",", ".")?></td>
+						<td class="text-center"><?= $GUIA->id_guia ?></td>
+						<td class="text-center"><?= $associado->matricula ?></td>
+						<td class="text-center"><?= $associado->nome ?></td>
+						<td class="text-center"><?= $GUIA->valor ?></td>
+						<td class="text-center"><?= $GUIA->pagar ?></td>
+						<td class="text-center"><?= $GUIA->valor + $GUIA->pagar ?></td>
 					</tr>
-					<?php $TOTAL += abs($PAGO)+$PAGAR;  } } ?>
+					<?php } ?>
 				</tbody>
 			  </table>
 			</div>

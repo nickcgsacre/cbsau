@@ -60,6 +60,8 @@ $MENSALIDADES = listar("mensalidades", $query);
                         <tr>
                             <th>QTD. PLANOS</th>
                             <th>VALOR</th>
+                            <th>Associado</th>
+                            <th>Valor Mes anterior</th>
                             <th>DATA DA EMISSAO</th>
                             <th>DATA DO REPASSE</th>
                             <th>DATA DO PAGAMENTO</th>
@@ -74,9 +76,22 @@ $MENSALIDADES = listar("mensalidades", $query);
                                         $dataEmissao = date_create($mensalidade->data_emissao);
                                         $dataRepasse = date_create($mensalidade->data_repasse);
                                         $dataPagamento = date_create($mensalidade->data_pagamento);
+                                        $associado = buscar('associados', 'id_associado = '.$mensalidade->associado);
+
+                                        $mensalidadeAnterior = null;
+
+                                        if ($mensalidade->mes == 1) {
+                                            $anoAnterior = $mensalidade->ano - 1;
+                                            $mensalidadeAnterior = buscar('mensalidades', "associado = '$mesalidade->associado' and ano = '$anoAnterior' and mes = 12");
+                                        } else {
+                                            $mesAnterior = $mensalidade->mes - 1;
+                                            $mensalidadeAnterior = buscar('mensalidades', "associado = '$mesalidade->associado' and mes = $mesAnterior");
+                                        }
                                     ?>
                                     <td><?=count($mensalidade->planos)?></td>
                                     <td>R$ <?=$mensalidade->valor?></td>
+                                    <td><?= $associado->nome ?></td>
+                                    <td><?= $mensalidadeAnterior->valor ? $mensalidadeAnterior->valor : 'Nenhum valor registrado' ?></td>
                                     <td><?=date_format($dataEmissao, 'd/m/Y')?></td>
                                     <td><?=date_format($dataRepasse, 'd/m/Y')?></td>
                                     <td><?=date_format($dataPagamento, 'd/m/Y')?></td>
@@ -85,7 +100,7 @@ $MENSALIDADES = listar("mensalidades", $query);
                             <?php } ?>
                             
                             <tr>
-                                <td colspan="5" class="bg-secondary text-white">
+                                <td colspan="7" class="bg-secondary text-white">
                                     <strong>Valor total: R$ <?=$valorTotal?></strong>
                                 </td>
                             </tr>
